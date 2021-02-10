@@ -42,6 +42,10 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.*;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * Created on 18.08.2004
  * 
@@ -66,15 +70,15 @@ public class ListAllExecutorsFormTag extends BatchReturningTitledFormTag {
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
-        int executorsCount;
+        int executorsCount = Delegates.getExecutorService().getExecutorsCount(getUser(), getBatchPresentation());
         List<Executor> executors = (List<Executor>) Delegates.getExecutorService().getExecutors(getUser(), getBatchPresentation());
         boolean displayBasicGroups = WebResources
                 .getResources()
                 .getBooleanProperty("display.only.basic.userGroups", true);
         if (displayBasicGroups) {
             executors.removeIf(e -> notDisplayableExecutorsByDefault.contains(e));
+            executorsCount = executors.size();
         }
-        executorsCount = executors.size();
         BatchPresentation batchPresentation = getBatchPresentation();
         buttonEnabled = BatchPresentationUtils.isExecutorPermissionAllowedForAnyone(getUser(), executors, batchPresentation, Permission.UPDATE);
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, batchPresentation, executorsCount, getReturnAction());
